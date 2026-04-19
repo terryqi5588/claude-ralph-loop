@@ -1,7 +1,7 @@
 
 ---
 
-# 🚀 Quickstart Reference: A Real-World "Self-Healing" Case Study
+# 🚀 A Real-World "Self-Healing" Case Study
 
 This document provides a real-world trace of how this repository's **Ralph Loop** and **Deadlock Defense Protocol** work in a restricted Windows environment. 
 
