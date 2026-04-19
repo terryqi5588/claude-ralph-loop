@@ -70,3 +70,84 @@ Tasks are automatically archived here when marked as done.
 - 正确的流程：done → git commit → archive
 
 ---
+
+## Task #1: 创建英文 README.md 文档
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 创建了完整的英文 README - 包含 Ralph Loop 介绍和使用指南
+- 包含了快速开始、项目结构、命令参考和完整工作流示例
+
+---
+
+## Task #1: 增强 plan.py 健壮性 - 熔断机制和计数器
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 添加了 attempts 计数器 - 每次 start 时+1，默认值为0
+- 实现熔断机制 - attempts > 3 时阻止任务启动并设为 blocked 状态
+- done 时重置 attempts - 成功完成后重置计数器
+- 更新 list 显示 - 显示 attempts 进度和 blocked 状态警告
+
+---
+
+## Task #1: 更新 CLAUDE.md - 添加死循环防御协议
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 添加了死循环防御协议 - 2次失败后必须切换策略
+- 三种策略：任务拆分、寻求协助、环境重置
+- 明确禁止行为：重复相同方法、忽略计数器等
+
+---
+
+## Task #1: 优化 verify.sh - 提供详细错误反馈
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 重写 verify.sh - 添加详细错误反馈和阶段标识
+- 类型检查失败时自动显示前10行关键错误
+- 每个失败阶段都提供上下文说明和修复建议
+- 使用不同退出码标识失败类型：1=ESLint, 2=TypeCheck, 3=Tests
+
+---
+
+## Task #1: 更新 README - 反映 verify.sh 的增强功能
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 更新 Features 部分 - 突出新的错误报告和熔断机制
+- 添加错误反馈示例 - 展示实际的输出格式和建议
+- 添加无限循环防御章节 - 说明3次重试限制和策略切换
+
+---
+
+## Task #1: 优化 README 流程图 - 更详细的 Ralph Loop 图示
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 设计了详细的 ASCII 流程图 - 包含所有阶段、决策点和命令
+- 添加了熔断机制可视化 - 显示 attempts 计数和阻塞逻辑
+- 包含了关键保障措施说明 - 重试限制、策略切换、高信号反馈
+
+---
+
+## Task #1: 修复 README 流程图 - 添加完整的反馈闭环
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 添加了从 REFLECT 回到 ACT 的明确箭头 - 小修改的闭环
+- 添加了从策略切换回到 PLAN 的箭头 - 任务分解的闭环
+- 区分了两种返回路径：简单修复→ACT，重新规划→PLAN
+
+---
+
+## Task #1: 重新设计 README 流程图 - 清晰的箭头和闭环
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 使用垂直流程图 - 清晰的从上到下流动
+- 明确标注闭环路径 - 'Back to ACT' 和 'Back to PLAN'
+- 使用统一的箭头符号 - │ ▼ └ ┌ ┴ ┬ 避免混乱
+
+---
