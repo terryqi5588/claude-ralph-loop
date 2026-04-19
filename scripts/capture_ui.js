@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 /**
  * UI Capture Tool
  *
@@ -9,9 +9,9 @@
  * This allows the Agent to "see" the UI through text-based representation.
  */
 
-import { chromium, Browser, Page } from 'playwright';
-import * as fs from 'fs';
-import * as path from 'path';
+import { chromium } from 'playwright';
+import fs from 'fs';
+import path from 'path';
 
 const DEV_SERVER_URL = 'http://localhost:5173';
 const LOGS_DIR = path.join(process.cwd(), 'logs');
@@ -24,39 +24,10 @@ if (!fs.existsSync(LOGS_DIR)) {
 }
 
 /**
- * Format accessibility tree node into readable text
- */
-function formatAccessibilityTree(node: any, indent: string = ''): string {
-  if (!node) return '';
-
-  let result = '';
-  const role = node.role || 'unknown';
-  const name = node.name || '';
-  const value = node.value || '';
-  const description = node.description || '';
-
-  // Format the node
-  result += `${indent}[${role}]`;
-  if (name) result += ` name="${name}"`;
-  if (value) result += ` value="${value}"`;
-  if (description) result += ` description="${description}"`;
-  result += '\n';
-
-  // Process children recursively
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      result += formatAccessibilityTree(child, indent + '  ');
-    }
-  }
-
-  return result;
-}
-
-/**
  * Main capture function
  */
 async function captureUI() {
-  let browser: Browser | null = null;
+  let browser = null;
 
   try {
     console.log('==========================================');
@@ -99,17 +70,49 @@ async function captureUI() {
     });
     console.log(`✓ Screenshot saved: ${SCREENSHOT_PATH}`);
 
-    // Extract accessibility tree
-    console.log('\nExtracting accessibility tree...');
-    const snapshot = await page.accessibility.snapshot();
+    // Extract accessibility tree (alternative approach using page content)
+    console.log('\nExtracting UI structure...');
 
-    if (!snapshot) {
-      console.error('✗ Failed to get accessibility snapshot');
-      process.exit(1);
-    }
+    // Get page title and basic structure
+    const title = await page.title();
+    const content = await page.evaluate(() => {
+      function serializeNode(node, indent = '') {
+        if (node.nodeType !== 1) return ''; // Only element nodes
 
-    // Format and save accessibility tree
-    const formattedTree = formatAccessibilityTree(snapshot);
+        let result = '';
+        const tagName = node.tagName.toLowerCase();
+        const role = node.getAttribute('role') || tagName;
+        const ariaLabel = node.getAttribute('aria-label');
+        const name = node.getAttribute('name');
+        const id = node.id;
+        const className = node.className;
+        const textContent = Array.from(node.childNodes)
+          .filter(n => n.nodeType === 3)
+          .map(n => n.textContent.trim())
+          .filter(t => t)
+          .join(' ');
+
+        // Format the node
+        result += `${indent}[${role}]`;
+        if (ariaLabel) result += ` aria-label="${ariaLabel}"`;
+        if (name) result += ` name="${name}"`;
+        if (id) result += ` id="${id}"`;
+        if (className && typeof className === 'string') result += ` class="${className}"`;
+        if (textContent) result += ` text="${textContent.substring(0, 50)}"`;
+        result += '\n';
+
+        // Process children
+        for (const child of node.children) {
+          result += serializeNode(child, indent + '  ');
+        }
+
+        return result;
+      }
+
+      return serializeNode(document.body);
+    });
+
+    const formattedTree = `Title: ${title}\n\n${content}`;
     fs.writeFileSync(UI_STRUCTURE_PATH, formattedTree, 'utf-8');
     console.log(`✓ UI structure saved: ${UI_STRUCTURE_PATH}`);
 

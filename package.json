@@ -11,7 +11,7 @@
     "test": "echo 'No tests configured yet' && exit 0",
     "preview": "vite preview",
     "verify": "bash scripts/verify.sh",
-    "capture-ui": "ts-node scripts/capture_ui.ts"
+    "capture-ui": "node scripts/capture_ui.js"
   },
   "dependencies": {
     "react": "^18.2.0",
