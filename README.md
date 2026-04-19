@@ -9,9 +9,68 @@ An intelligent task management and code verification system powered by the **Ral
 Ralph Loop is a disciplined, iterative workflow designed for AI agents (like Claude) to build high-quality software systematically:
 
 ```
-Plan → Act → Observe → Reflect → Complete
-  ↑                                   ↓
-  └──────────← (if issues) ←─────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Ralph Loop Workflow                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────┐
+    │   1. PLAN    │  • Check: python plan.py list
+    │              │  • Add task if needed
+    │              │  • Start: python plan.py start <id>
+    └──────┬───────┘  • Track: attempts counter (max 3)
+           │
+           ↓
+    ┌──────────────┐
+    │   2. ACT     │  • Write/modify code
+    │              │  • Follow best practices
+    │              │  • Keep changes focused
+    └──────┬───────┘
+           │
+           ↓
+    ┌──────────────┐
+    │  3. OBSERVE  │  • Run: bash scripts/verify.sh
+    │              │    - ESLint (exit code 1)
+    │              │    - TypeScript (exit code 2)
+    │              │    - Tests (exit code 3)
+    │              │  • Run: npm run capture-ui
+    └──────┬───────┘  • Get detailed error feedback
+           │
+           ↓
+        ┌──────┐
+        │ Pass?│────── YES ────┐
+        └──┬───┘               │
+           │                   ↓
+          NO            ┌──────────────┐
+           │            │ 5. COMPLETE  │  • Mark: python plan.py done <id>
+           ↓            │              │  • Commit: git commit -m "..."
+    ┌──────────────┐    │              │  • Archive: python plan.py archive
+    │  4. REFLECT  │    └──────────────┘
+    │              │  • Record: python plan.py reflect <id> "<note>"
+    │              │  • Check: attempts count
+    └──────┬───────┘  • If attempts >= 2: MUST switch strategy
+           │
+           ├──── Attempts < 3? ────┐
+           │         YES            │
+           │         ↓              │ NO (3 attempts)
+           │    Return to ACT      │      ↓
+           │         │              │  ┌─────────────┐
+           │         └──────────────┼──│  🔴 BLOCK   │
+           │                        │  │             │
+           └── Strategy Switch ─────┘  │ Task blocked│
+                   ↓                   │ Manual fix  │
+           ┌──────────────────┐        │  required   │
+           │ Choose One:      │        └─────────────┘
+           │ • Decompose task │
+           │ • Ask for help   │
+           │ • Reset context  │
+           └──────────────────┘
+
+Key Safeguards:
+━━━━━━━━━━━━━━
+⚠️  Attempts counter: Every 'start' increments (visible in 'list')
+⚠️  2-failure rule: After 2 failures, MUST change strategy
+⚠️  3-attempt limit: Task auto-blocked, requires manual intervention
+⚠️  High-signal feedback: Detailed errors prevent blind retries
 ```
 
 ### The Five Phases:
