@@ -26,15 +26,20 @@ Plan → Act → Observe → Reflect → Complete
 
 ### 📋 Task Management (`scripts/plan.py`)
 - Add, start, reflect, and complete tasks
+- **Circuit breaker**: Automatic retry limit (max 3 attempts)
+- **Infinite loop prevention**: Tasks blocked after 3 failed attempts
 - Automatic archiving to `PROGRESS.md` after git commit
 - Clean, signal-focused `tasks.json` (only active tasks)
 - Rich reflection system for capturing insights
 
 ### ✅ Code Verification (`scripts/verify.sh`)
-- ESLint for code quality
-- TypeScript type checking
-- Automated test execution
-- Fail-fast with clear error reporting
+- **Enhanced error reporting** with detailed diagnostics
+- **Stage-specific feedback**: Clear identification of which step failed
+- **Auto-display key errors**: First 10 lines of critical issues
+- **Contextual help**: Fix suggestions for each failure type
+- **Smart exit codes**: Different codes for ESLint (1), TypeCheck (2), Tests (3)
+- Runs: ESLint → TypeScript → Tests in sequence
+- High-signal feedback reduces invalid retry attempts
 
 ### 👁️ Visual Feedback (`scripts/capture_ui.ts`)
 - Screenshot capture of running UI
@@ -173,6 +178,41 @@ cat logs/ui_structure.txt  # Text-based UI structure
 2. **TypeScript** - Type safety (`tsc --noEmit`)
 3. **Tests** - Unit/integration tests
 
+**Enhanced Error Reporting:**
+
+When verification fails, you get clear, actionable feedback:
+
+```bash
+==========================================
+VERIFICATION FAILED: TypeScript Type Check
+==========================================
+
+Failed at: TypeScript Type Check
+Command: npx tsc --noEmit
+
+What this means:
+  • TypeScript found type errors in your code
+  • These must be fixed before proceeding
+
+Key Errors (first 10 lines):
+----------------------------------------
+src/App.tsx(5,7): error TS2322: Type 'string' is not assignable to type 'number'
+src/utils/helper.ts(12,15): error TS2345: Argument of type 'undefined'...
+----------------------------------------
+
+Common fixes:
+  • Add missing type annotations
+  • Fix type mismatches
+  • Import missing types
+  • Check for 'any' types that should be specific
+```
+
+Each failure stage provides:
+- 🎯 **Clear identification** of which step failed
+- 📋 **Key errors** extracted (first 10 lines for quick diagnosis)
+- 💡 **Context and suggestions** for common fixes
+- 🔢 **Unique exit codes** (1=ESLint, 2=TypeCheck, 3=Tests)
+
 ## 🎓 Ralph Loop in Practice
 
 ### Example Workflow
@@ -207,6 +247,32 @@ python scripts/plan.py archive  # Archive to PROGRESS.md
 - ✅ **Quality**: Code must pass all verification before completion
 - ✅ **Learning**: Reflections document insights and decisions
 - ✅ **Honesty**: Record failures, don't hide problems
+- 🔴 **Circuit Breaker**: Automatic retry limits prevent infinite loops
+
+### 🛡️ Infinite Loop Prevention
+
+Ralph Loop includes built-in safeguards to prevent wasted attempts:
+
+**Automatic Retry Tracking:**
+- Each task tracks `attempts` (visible in `plan.py list`)
+- Counter increments on every `start`
+- **Hard limit: 3 attempts maximum**
+- Task automatically blocked on 4th attempt
+
+**Mandatory Strategy Switch:**
+
+After 2 failed attempts, the agent MUST:
+
+1. **Decompose** - Break complex task into 2-3 atomic sub-tasks
+2. **Seek Help** - Create `[BLOCKER]` report with error details
+3. **Reset Context** - Suggest `/clear` and restart from `PROGRESS.md`
+
+**Prohibited Actions:**
+- ❌ Repeating the same approach 3+ times
+- ❌ Minor tweaks hoping for different results
+- ❌ Ignoring the attempts counter
+
+This ensures high-quality iterations and prevents the frustration of repeated failures.
 
 ## 🤝 Contributing
 
