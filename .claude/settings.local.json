@@ -1,13 +1,1 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm create *)",
-      "Bash(python scripts/plan.py add \"初始化React应用\")",
-      "Bash(python scripts/plan.py add \"实现任务列表组件\")",
-      "Bash(python scripts/plan.py start 1)",
-      "Bash(python scripts/plan.py reflect 1 \"已创建基础项目结构\")",
-      "Bash(python scripts/plan.py done 1)",
-      "Bash(python scripts/plan.py list)"
-    ]
-  }
-}
+
