@@ -50,11 +50,3 @@ Below is the actual reflection history captured in `tasks.json`, demonstrating h
 3.  **Harness Resilience**: The `verify.sh` and `capture-ui` scripts acted as the "central nervous system," providing high-signal feedback that guided the Agent to the finish line.
 
 ---
-
-## 🏁 Try it yourself
-To see this logic in action， start a new loop:
-1. Open Claude Code.
-2. Run: `"Implement a simple counter in src/quickstart/ following the CLAUDE.md protocol."`
-3. Watch how the Agent uses `scripts/plan.py` to manage its own "thoughts" and "actions."
-
----
