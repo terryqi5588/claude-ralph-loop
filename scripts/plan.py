@@ -181,7 +181,7 @@ def list_tasks() -> None:
     print("="*100 + "\n")
 
 
-def archive_all_completed() -> None:
+def archive_all_completed(force: bool = False) -> None:
     """Archive all completed tasks that have been committed"""
     tasks = load_tasks()
     completed_tasks = [t for t in tasks if t.get('status') == 'completed']
@@ -205,13 +205,18 @@ def archive_all_completed() -> None:
         print("⚠ Warning: Unable to check git status. Proceeding anyway...")
         has_changes = False
 
-    if has_changes:
+    if has_changes and not force:
         print("⚠ Warning: You have uncommitted changes.")
         print("It's recommended to commit your changes before archiving.")
         print("")
-        response = input("Continue with archiving? (y/N): ")
-        if response.lower() not in ['y', 'yes']:
-            print("Archiving cancelled.")
+        try:
+            response = input("Continue with archiving? (y/N): ")
+            if response.lower() not in ['y', 'yes']:
+                print("Archiving cancelled.")
+                return
+        except EOFError:
+            print("\nArchiving cancelled (non-interactive mode).")
+            print("Use 'python scripts/plan.py archive --force' to skip confirmation.")
             return
 
     print(f"Found {len(completed_tasks)} completed task(s) to archive...")
@@ -276,7 +281,8 @@ def main():
             list_tasks()
 
         elif command == "archive":
-            archive_all_completed()
+            force = '--force' in sys.argv or '-f' in sys.argv
+            archive_all_completed(force)
 
         else:
             print(f"✗ Unknown command: {command}")
