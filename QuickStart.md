@@ -52,7 +52,7 @@ Below is the actual reflection history captured in `tasks.json`, demonstrating h
 ---
 
 ## 🏁 Try it yourself
-To see this logic in action, look at the `tasks.json` in this folder. It contains the raw logs of the journey above. To start a new loop:
+To see this logic in action， start a new loop:
 1. Open Claude Code.
 2. Run: `"Implement a simple counter in src/quickstart/ following the CLAUDE.md protocol."`
 3. Watch how the Agent uses `scripts/plan.py` to manage its own "thoughts" and "actions."
