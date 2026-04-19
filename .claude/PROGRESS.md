@@ -60,3 +60,13 @@ Tasks are automatically archived here when marked as done.
 - 验证脚本失败是环境问题（依赖未安装），plan.py 逻辑已验证正确
 
 ---
+
+## Task #3: 修复归档机制 - 只在 git commit 后归档
+**Completed:** 2026-04-19
+
+**Key Insights:**
+- 修改了 done 命令 - 现在只标记 completed，不自动归档
+- 修改了 archive 命令 - 检查 git status，如果有未提交的更改会警告
+- 正确的流程：done → git commit → archive
+
+---
