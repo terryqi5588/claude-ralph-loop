@@ -1,17 +1,1 @@
-[
-  {
-    "id": 1,
-    "description": "修改所有中文 commit message 为英文",
-    "status": "completed",
-    "created_at": "2026-04-19T16:40:51.063573",
-    "reflections": [
-      {
-        "timestamp": "2026-04-19T16:45:24.681885",
-        "note": "Successfully rewrote 4 Chinese commit messages to English using git filter-branch. Force pushed to origin/main. Verification failed due to missing npm dependencies (unrelated to task)."
-      }
-    ],
-    "attempts": 0,
-    "started_at": "2026-04-19T16:40:51.312114",
-    "completed_at": "2026-04-19T16:45:27.760972"
-  }
-]
+[]
