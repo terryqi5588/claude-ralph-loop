@@ -1,0 +1,54 @@
+name: Verify Code Quality
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for incomplete tasks
+        run: bash scripts/check_tasks.sh
+
+      - name: Run verification pipeline
+        run: bash scripts/verify.sh
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "=========================================="
+          echo "✓ CI verification passed successfully"
+          echo "=========================================="
+          echo ""
+          echo "All checks passed:"
+          echo "  ✓ No incomplete tasks"
+          echo "  ✓ ESLint passed"
+          echo "  ✓ TypeScript type check passed"
+          echo "  ✓ Tests passed"
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "✗ CI verification failed"
+          echo "=========================================="
+          echo ""
+          echo "Please fix the issues and try again."
+          echo "Run 'bash scripts/verify.sh' locally to debug."
+          exit 1

@@ -1,0 +1,4 @@
+# Logs directory for UI captures and runtime outputs
+*.png
+*.txt
+!.gitkeep
