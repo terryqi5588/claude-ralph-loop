@@ -127,7 +127,8 @@
       "Bash(python scripts/plan.py reflect 2 \"Converted capture_ui.ts to capture_ui.js \\(pure JavaScript with ESM imports\\) to avoid ts-node compatibility issues with package.json type:module. Updated package.json to use 'node scripts/capture_ui.js'.\")",
       "Bash(node scripts/capture_ui_test.js)",
       "Bash(python scripts/plan.py reflect 2 \"Successfully converted to pure JavaScript. Both verification steps now pass: verify.sh \\(ESLint, TypeScript, Tests\\) ✓ and capture-ui \\(screenshot + DOM structure\\) ✓. UI structure successfully extracted to logs/ui_structure.txt.\")",
-      "Bash(python scripts/plan.py done 2)"
+      "Bash(python scripts/plan.py done 2)",
+      "Bash(git commit -m 'chore: archive verification and capture_ui refactor tasks *)"
     ]
   }
 }
