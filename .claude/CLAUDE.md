@@ -109,6 +109,77 @@ This generates:
 - Reflections help track the development journey
 - If verification passes, proceed to Complete phase
 
+### 🔴 CRITICAL: Infinite Loop Prevention Protocol
+
+**The system tracks retry attempts to prevent infinite loops. Follow these MANDATORY rules:**
+
+#### Retry Limit
+- Each task has an `attempts` counter (visible in `plan.py list`)
+- Counter increments each time you `start` the task
+- **HARD LIMIT: 3 attempts maximum**
+- On 4th attempt, task is automatically `blocked` and requires manual intervention
+
+#### Strategy After 2 Failed Attempts
+
+**If a task fails twice in Observe phase, you MUST do ONE of the following:**
+
+1. **Task Decomposition** (Preferred)
+   - STOP attempting the current task
+   - Mark current task as `done` with reflection: "Task too complex, decomposing"
+   - Break into 2-3 atomic sub-tasks
+   - Each sub-task should be independently verifiable
+   - Example:
+     ```bash
+     # Original: "Implement user authentication"
+     # Decompose to:
+     python3 scripts/plan.py add "Create login form UI (no logic)"
+     python3 scripts/plan.py add "Implement auth API integration"
+     python3 scripts/plan.py add "Add session management"
+     ```
+
+2. **Seek Human Assistance** (Required if decomposition won't help)
+   - STOP all automatic execution
+   - Create a `[BLOCKER]` message to user with:
+     - What you tried (list all approaches)
+     - Error messages encountered
+     - Why you're stuck
+     - Specific question for the user
+   - Example:
+     ```
+     [BLOCKER] Authentication Implementation Blocked
+     
+     Attempts made:
+     1. OAuth flow - Error: Invalid redirect URI
+     2. JWT approach - Error: Token signing fails
+     
+     Root issue: Unable to access environment variables in test environment
+     
+     Question: Should I mock the auth service or is there a test config I'm missing?
+     ```
+
+3. **Context Reset** (Last resort)
+   - If you suspect context contamination or accumulated errors
+   - Suggest to user: "Run `/clear` and restart from PROGRESS.md"
+   - This clears conversation history but preserves task history
+
+#### Prohibited Actions
+
+**NEVER do these when at 2+ failures:**
+- ❌ Try the exact same approach a third time
+- ❌ Make minor tweaks hoping it works this time
+- ❌ Continue without recording reflections
+- ❌ Skip the strategy switch requirement
+- ❌ Ignore the `attempts` counter
+
+#### Detection Rules
+
+You are at risk of infinite loop when:
+- Same error appears in 2+ consecutive attempts
+- Reflections show repeated patterns without strategy change
+- `attempts` counter shows 2/3 or higher
+
+**Remember: It's better to stop and decompose than to waste the 3rd attempt on the same failing strategy.**
+
 ---
 
 ## 5. Complete Phase
