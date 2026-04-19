@@ -46,7 +46,8 @@ def add_task(description: str) -> None:
         "description": description,
         "status": "todo",
         "created_at": datetime.now().isoformat(),
-        "reflections": []
+        "reflections": [],
+        "attempts": 0
     }
 
     tasks.append(new_task)
@@ -55,7 +56,7 @@ def add_task(description: str) -> None:
 
 
 def start_task(task_id: int) -> None:
-    """Change task status to 'in_progress'"""
+    """Change task status to 'in_progress' with circuit breaker"""
     tasks = load_tasks()
     task = next((t for t in tasks if t['id'] == task_id), None)
 
@@ -63,10 +64,32 @@ def start_task(task_id: int) -> None:
         print(f"✗ Task {task_id} not found")
         sys.exit(1)
 
+    # Initialize attempts field for old tasks
+    if 'attempts' not in task:
+        task['attempts'] = 0
+
+    # Circuit breaker: Check retry limit
+    if task['attempts'] >= 3:
+        task['status'] = 'blocked'
+        save_tasks(tasks)
+        print(f"✗ TASK_BLOCKED: Retry limit reached (attempts: {task['attempts']})")
+        print(f"   Task {task_id}: {task['description']}")
+        print(f"   Manual intervention required.")
+        print(f"")
+        print(f"Actions:")
+        print(f"  - Review task reflections for issues")
+        print(f"  - Reset attempts: Manually edit .claude/tasks.json")
+        print(f"  - Or delete the task if no longer needed")
+        sys.exit(1)
+
+    # Increment attempts counter
+    task['attempts'] += 1
     task['status'] = 'in_progress'
     task['started_at'] = datetime.now().isoformat()
     save_tasks(tasks)
+
     print(f"✓ Task {task_id} started: {task['description']}")
+    print(f"  Attempts: {task['attempts']}/3")
 
 
 def reflect_task(task_id: int, note: str) -> None:
@@ -135,9 +158,10 @@ def done_task(task_id: int) -> None:
         print(f"✗ Task {task_id} not found")
         sys.exit(1)
 
-    # Mark as completed
+    # Mark as completed and reset attempts
     task['status'] = 'completed'
     task['completed_at'] = datetime.now().isoformat()
+    task['attempts'] = 0  # Reset on successful completion
     save_tasks(tasks)
 
     print(f"✓ Task {task_id} completed: {task['description']}")
@@ -159,26 +183,31 @@ def list_tasks() -> None:
         return
 
     # Print header
-    print("\n" + "="*100)
-    print(f"{'ID':<5} {'Status':<15} {'Description':<40} {'Reflections':<20}")
-    print("="*100)
+    print("\n" + "="*110)
+    print(f"{'ID':<5} {'Status':<15} {'Attempts':<10} {'Description':<50} {'Reflections':<20}")
+    print("="*110)
 
     # Print tasks
     for task in tasks:
         task_id = task['id']
         status = task['status']
-        desc = task['description'][:37] + "..." if len(task['description']) > 40 else task['description']
+        attempts = task.get('attempts', 0)
+        desc = task['description'][:47] + "..." if len(task['description']) > 50 else task['description']
         ref_count = len(task.get('reflections', []))
 
-        print(f"{task_id:<5} {status:<15} {desc:<40} {ref_count} reflection(s)")
+        # Highlight blocked tasks
+        status_display = f"⚠️ {status}" if status == 'blocked' else status
+        attempts_display = f"{attempts}/3" if status in ['in_progress', 'blocked'] else "-"
+
+        print(f"{task_id:<5} {status_display:<15} {attempts_display:<10} {desc:<50} {ref_count} reflection(s)")
 
         # Print reflections if any
         for i, ref in enumerate(task.get('reflections', []), 1):
             timestamp = ref['timestamp'].split('T')[0]  # Just the date
-            note = ref['note'][:60] + "..." if len(ref['note']) > 60 else ref['note']
+            note = ref['note'][:70] + "..." if len(ref['note']) > 70 else ref['note']
             print(f"      └─ [{timestamp}] {note}")
 
-    print("="*100 + "\n")
+    print("="*110 + "\n")
 
 
 def archive_all_completed(force: bool = False) -> None:
